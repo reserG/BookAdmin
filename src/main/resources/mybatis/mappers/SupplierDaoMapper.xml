@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.bookctrlcenter.dao.SupplierDao">
+
+    <resultMap id="supplierResultMap" type="Suppliers">
+        <id property="id" column="id"></id>
+        <result property="supplier" column="supplier"></result>
+        <result property="phone" column="phone"></result>
+        <result property="totalPrice" column="totalPrice"></result>
+        <result property="util.time1" column="time1"></result>
+        <result property="util.time2" column="time2"></result>
+        <result property="util.time3" column="time3"></result>
+        <result property="util.time4" column="time4"></result>
+        <result property="util.userID1" column="userID1"></result>
+        <result property="util.userID2" column="userID2"></result>
+        <result property="util.userID3" column="userID3"></result>
+        <result property="util.userID4" column="userID4"></result>
+        <result property="util.userName1" column="username"></result>
+        <result property="util.status1" column="status1"></result>
+        <result property="util.status2" column="status2"></result>
+        <result property="util.status3" column="status3"></result>
+
+    </resultMap>
+
+    <resultMap id="bookResultMap" type="Book">
+        <id property="id" column="id"></id>
+        <result property="bookName" column="bookName"></result>
+        <result property="author" column="author"></result>
+        <result property="publisher" column="publisher"></result>
+        <result property="isbn" column="isbn"></result>
+        <result property="time" column="time"></result>
+        <result property="price" column="price"></result>
+        <result property="user.username" column="username"></result>
+        <result property="user.departmentID" column="departmentID"></result>
+        <result property="user.department" column="department"></result>
+        <result property="userID" column="userID"></result>
+        <result property="classSchedule.className" column="className"></result>
+        <result property="classSchedule.classSchID" column="classSchID"></result>
+        <result property="user.subject" column="subject"></result>
+        <result property="count" column="count"></result>
+        <result property="util.time1" column="time1"></result>
+        <result property="util.time2" column="time2"></result>
+        <result property="util.time3" column="time3"></result>
+        <result property="util.time4" column="time4"></result>
+        <result property="util.userID1" column="userID1"></result>
+        <result property="util.userID2" column="userID2"></result>
+        <result property="util.userID3" column="userID3"></result>
+        <result property="util.userID4" column="userID4"></result>
+        <result property="util.status1" column="status1"></result>
+        <result property="util.status2" column="status2"></result>
+        <result property="util.status3" column="status3"></result>
+    </resultMap>
+
+    <select id="getPriceFromDMForSM" parameterType="Suppliers" resultType="Integer">
+       select sum(price * count) totalPrice from bookdemandlibrary where supplierID = #{id} and warehousing = 1;
+    </select>
+    <select id="getPriceFromSBDMForSM" parameterType="Suppliers" resultType="Integer">
+        select sum(price * count) totalPrice from schoolbookdemandlibrary where supplierID =#{id}  and warehousing = 1;
+    </select>
+
+    <select id="listAll" parameterType="Suppliers" resultMap="supplierResultMap">
+        select * from supplierSM s left join user u on s.userID1 = u.id inner join supplier sup on sup.id = s.id
+        <where>
+            <if test="supplier!=null and supplier!= ''">and sup.supplier like "%"#{supplier}"%"</if>
+        </where>
+    </select>
+
+    <select id="listAllSUP" parameterType="Suppliers" resultMap="supplierResultMap">
+        select * from supplier
+        <where>
+            <if test="supplier!=null and supplier!= ''">and supplier like "%"#{supplier}"%"</if>
+            <if test="phone!=null and phone!= ''">and phone like "%"#{phone}"%"</if>
+        </where>
+    </select>
+    <select id="getDataCountSUP"  resultType="Integer" parameterType="Suppliers">
+        select count(1) from supplier
+        <where>
+            <if test="supplier!=null and supplier!= ''">and supplier like "%"#{supplier}"%"</if>
+            <if test="phone!=null and phone!= ''">and phone like "%"#{phone}"%"</if>
+        </where>
+    </select>
+
+        <select id="getDataCount"  resultType="Integer" parameterType="Suppliers">
+            select count(1) from supplierSM s inner join supplier sup on sup.id = s.id
+            <where>
+                <if test="supplier!=null and supplier!= ''">and sup.supplier like "%"#{supplier}"%"</if>
+            </where>
+        </select>
+
+    <select id="listAllM" parameterType="Suppliers" resultMap="supplierResultMap">
+        select * from supplierSM p left join user u on p.userID1 = u.id inner join supplier sup on sup.id = p.id where status1 = 1
+            <if test="supplier!=null and supplier!= ''">and supplier like "%"#{supplier}"%"</if>
+    </select>
+
+    <select id="getDataCountM"  resultType="Integer" parameterType="Suppliers">
+        select count(1) from supplierSM where status1 = 1
+            <if test="supplier!=null and supplier!= ''">and supplier like "%"#{supplier}"%"</if>
+    </select>
+
+    <update id="update" parameterType="Suppliers">
+        update supplierSM set totalPrice = #{totalPrice} where id = #{id}
+    </update>
+
+    <update id="updateForSuperAdmin" parameterType="Suppliers">
+        update supplierSM set status1 = #{util.status1},status3 = #{util.status1},time1 = #{util.time1},userID1 = #{util.userID1} where id = #{id}
+    </update>
+
+    <update id="updateForMoney" parameterType="Suppliers">
+        update supplierSM set status2 = #{util.status2},time2 = #{util.time2},userID2 = #{util.userID2} where id = #{id}
+    </update>
+
+    <update id="updateForMoneyR" parameterType="Suppliers">
+        update supplierSM set status3 = #{util.status3},status2 = 0,time2 = #{util.time2},userID2 = #{util.userID2} where id = #{id}
+    </update>
+
+    <update id="insert" parameterType="Suppliers">
+        insert into supplierSM(id,totalPrice,status1,status3) values (#{id},#{totalPrice},0,1)on duplicate key update totalPrice = totalPrice + #{totalPrice};
+    </update>
+    <insert id="insertSUP" parameterType="Suppliers">
+        insert into supplier(supplier,phone) values (#{supplier},#{phone})
+    </insert>
+
+<!--     <insert id="insert" parameterType="Suppliers">-->
+<!--         insert into publisher(publisher) values (#{publisher})-->
+<!--     </insert>-->
+
+    <select id="IfExit" parameterType="Suppliers" resultType="Integer">
+        select count(id) from supplier where supplier = #{supplier}
+    </select>
+
+<!--    <select id="listAllForSM" parameterType="User" resultMap="userResultMap">-->
+<!--        select * from userRece ur inner join bookcenter bc on ur.isbn = bc.isbn inner join user u on u.id = ur.userID1 inner join department dp on dp.id = u.departmentID-->
+<!--        <where>-->
+<!--            <if test="username!=null and username !=''"> u.username like concat('%',#{username},'%')</if>-->
+<!--            <if test="id!=null and id !=''"> u.id like concat('%',#{id},'%')</if>-->
+<!--            <if test="department!=null and department !=''"> dp.department like concat('%',#{department},'%')</if>-->
+<!--        </where>-->
+<!--    </select>-->
+
+<!--    <select id="listAllFromAdmin" parameterType="User" resultMap="bookResultMap">-->
+<!--        select distinct * from userRece ur inner join bookcenter bc on ur.isbn = bc.isbn-->
+<!--        inner join user u on u.id = ur.userID1 and u.departmentID = #{departmentID}-->
+<!--        inner join classschedule cs on cs.userID = u.id group by ur.isbn,ur.userID1;-->
+<!--    </select>-->
+
+<!--    <select id="listAllFromSuperAdmin" parameterType="User" resultMap="bookResultMap">-->
+<!--        select * from userRece ur inner join bookcenter bc on ur.isbn = bc.isbn inner join user u on u.id = ur.userID2 inner join department dp on dp.id = u.departmentID and ur.status1 = 1;-->
+<!--    </select>-->
+
+<!--    <insert id="insertForUser" parameterType="User">-->
+<!--        insert into userRece(isbn,userID,time1) values (#{book.isbn},#{util.userID1},#{util.time1})-->
+<!--    </insert>-->
+
+<!--    <select id="getDataCount"  resultType="Integer" parameterType="User">-->
+<!--        select count(1) from userRece ur inner join bookcenter bc on ur.isbn = bc.isbn and ur.userID1 =#{util.userID1}-->
+<!--    </select>-->
+
+<!--    <select id="getDataCountBySuperAdmin"  resultType="Integer" parameterType="User">-->
+<!--        select count(1) from userRece ur inner join bookcenter bc on ur.isbn = bc.isbn and ur.status1 = 1-->
+<!--    </select>-->
+
+<!--    <select id="getDataCountByAdmin"  resultType="Integer" parameterType="User">-->
+<!--              select count(1) from userRece ur inner join bookcenter bc on ur.isbn = bc.isbn  inner join user u on u.id = ur.userID1 and u.departmentID = #{departmentID};-->
+<!--    </select>-->
+
+<!--    <select id="getDataCountForSM"  resultType="Integer" parameterType="User">-->
+<!--        select count(1) from userRece ur inner join bookcenter bc on ur.isbn = bc.isbn  inner join user u on u.id = ur.userID1 inner join department dp on dp.id = u.departmentID-->
+<!--        <where>-->
+<!--            <if test="username!=null and username !=''"> u.username like concat('%',#{username},'%')</if>-->
+<!--            <if test="id!=null and id !=''"> u.id like concat('%',#{id},'%')</if>-->
+<!--            <if test="department!=null and department !=''"> dp.department like concat('%',#{department},'%')</if>-->
+<!--        </where>-->
+<!--    </select>-->
+
+<!--    <select id="getUserByUserID" parameterType="Integer" resultMap="userResultMap">-->
+<!--        select * from user where id = #{id}-->
+<!--    </select>-->
+
+<!--    <update id="updateByAdmin" parameterType="User">-->
+<!--   UPDATE userRece set-->
+<!--        userID2= #{util.userID2} ,status1 = #{util.status1},time2 =#{util.time2}-->
+<!--        where id = #{id}-->
+<!--    </update>-->
+<!--    <update id="updateByEditor" parameterType="User">-->
+
+<!--    </update>-->
+<!--    <update id="updateBySuperAdmin" parameterType="User">-->
+<!--         UPDATE userRece set-->
+<!--        userID3= #{util.userID3} ,status2 = #{util.status2},time3 =#{util.time3}-->
+<!--        where id = #{id}-->
+<!--    </update>-->
+
+<!--    <update id="updateForSM" parameterType="User">-->
+<!--         UPDATE userRece set-->
+<!--        userID4= #{util.userID4} ,status3 = #{util.status3},time4 =#{util.time4}-->
+<!--        where id = #{id}-->
+<!--    </update>-->
+
+</mapper>

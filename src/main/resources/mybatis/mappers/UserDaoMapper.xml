@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.bookctrlcenter.dao.UserDao">
+
+    <resultMap id="userResultMap" type="User">
+        <id property="id" column="id"></id>
+        <result property="username" column="username"></result>
+        <result property="password" column="password"></result>
+        <result property="email" column="email"></result>
+        <result property="gender" column="gender"></result>
+        <result property="phone" column="phone"></result>
+        <result property="type" column="type"></result>
+        <result property="departmentID" column="departmentID"></result>
+        <result property="department" column="department"></result>
+        <result property="salt" column="salt"></result>
+        <result property="book.bookName" column="bookName"></result>
+        <result property="book.isbn" column="isbn"></result>
+        <result property="book.price" column="price"></result>
+        <result property="subject" column="subject"></result>
+        <result property="classSchedule.classSchID" column="classSchID"></result>
+        <result property="classSchedule.classID" column="classID"></result>
+        <result property="classSchedule.className" column="className"></result>
+        <result property="util.time1" column="time1"></result>
+        <result property="util.time2" column="time2"></result>
+        <result property="util.time3" column="time3"></result>
+        <result property="util.time4" column="time4"></result>
+        <result property="util.userID1" column="userID1"></result>
+        <result property="util.userID2" column="userID2"></result>
+        <result property="util.userID3" column="userID3"></result>
+        <result property="util.userID4" column="userID4"></result>
+        <result property="util.status1" column="status1"></result>
+        <result property="util.status2" column="status2"></result>
+        <result property="util.status3" column="status3"></result>
+
+    </resultMap>
+
+    <resultMap id="bookResultMap" type="Book">
+        <id property="id" column="id"></id>
+        <result property="bookName" column="bookName"></result>
+        <result property="author" column="author"></result>
+        <result property="publisher" column="publisher"></result>
+        <result property="isbn" column="isbn"></result>
+        <result property="time" column="time"></result>
+        <result property="price" column="price"></result>
+        <result property="user.username" column="username"></result>
+        <result property="user.departmentID" column="departmentID"></result>
+        <result property="user.department" column="department"></result>
+        <result property="userID" column="userID"></result>
+        <result property="classSchedule.className" column="className"></result>
+        <result property="classSchedule.classSchID" column="classSchID"></result>
+        <result property="user.subject" column="subject"></result>
+        <result property="count" column="count"></result>
+        <result property="util.time1" column="time1"></result>
+        <result property="util.time2" column="time2"></result>
+        <result property="util.time3" column="time3"></result>
+        <result property="util.time4" column="time4"></result>
+        <result property="util.userID1" column="userID1"></result>
+        <result property="util.userID2" column="userID2"></result>
+        <result property="util.userID3" column="userID3"></result>
+        <result property="util.userID4" column="userID4"></result>
+        <result property="util.status1" column="status1"></result>
+        <result property="util.status2" column="status2"></result>
+        <result property="util.status3" column="status3"></result>
+    </resultMap>
+
+
+    <resultMap id="typeResultMap" type="String">
+        <result property="type" column="type"></result>
+    </resultMap>
+
+    <resultMap id="dpResultMap" type="User">
+        <result property="departmentID" column="departmentID"></result>
+        <result property="department" column="department"></result>
+    </resultMap>
+
+<!--    <update id="updateUserBalance" parameterType="User" >-->
+<!--        UPDATE user SET user_balance = user_balance - #{price} WHERE user_username = #{username}-->
+<!--    </update>-->
+<!--resultType="com.bookctrlcenter.entity.User"-->
+    <select id="login" parameterType="User" resultMap="userResultMap">
+      select * from user u inner join department dp on u.departmentID = dp.id where u.id=#{id}
+
+    </select>
+    <select id="select" parameterType="User" resultMap="userResultMap">
+        select * from user u inner join department dp on u.departmentID = dp.id where u.id=#{id}
+    </select>
+    <select id="listAll"   resultMap="userResultMap">
+        select * from user u inner join department dp on u.departmentID = dp.id
+        <where>
+            <if test="id!=null and id!= ''">and u.id like concat('%',#{id},'%')</if>
+            <if test="username!=null and username!= ''">and username like concat('%',#{username},'%')</if>
+            <if test="departmentID!= null and departmentID!= ''">and departmentID = #{departmentID}</if>
+            <if test="gender!= null and gender!= ''">and gender = #{gender}</if>
+            <if test="type!= null and type!= ''">and type = #{type}</if>
+        </where>
+        limit #{start},#{size}
+    </select>
+    <select id="getDataCoutOfUser"  resultType="Integer" parameterType="User">
+        select count(1) from user u
+        <where>
+            <if test="id!=null and id!= ''">and u.id like concat('%',#{id},'%')</if>
+            <if test="username!=null and username!= ''">and username like concat('%',#{username},'%')</if>
+            <if test="departmentID!= null and departmentID!= ''">and departmentID = #{departmentID}</if>
+            <if test="gender!= null and gender!= ''">and gender = #{gender}</if>
+            <if test="type!= null and type!= ''">and type = #{type}</if>
+        </where>
+    </select>
+
+    <insert id="insert" parameterType="User">
+        insert into user(id,username,password,salt,token,gender,phone,email,type,departmentID) values (#{id},#{username},#{password},#{salt},#{token},#{gender},#{phone},#{email},#{type},#{departmentID})
+    </insert>
+
+    <update id="update" parameterType="User">
+        update user set phone=#{phone},email=#{email}  where id = #{id}
+    </update>
+
+    <delete id="delete" parameterType="User">
+        delete from user where id=#{id}
+    </delete>
+
+    <update id="updateUserByAdmin" parameterType="User">
+        update user set  type=#{type}  where id = #{id}
+    </update>
+
+    <update id="updatePW" parameterType="User">
+        update user set password=#{password},salt =#{salt}  where id = #{id}
+    </update>
+
+    <update id="updatePWByAdmin" parameterType="User">
+        update user set password=#{password},salt =#{salt}  where id = #{id}
+    </update>
+    <select id="listAllFromUserRece" parameterType="User" resultMap="bookResultMap">
+        select * from userRece ur inner join bookcenter bc on ur.isbn = bc.isbn and ur.userID1 =#{util.userID1}
+    </select>
+
+    <select id="listAllForSM" parameterType="User" resultMap="userResultMap">
+        select * from userRece ur inner join bookcenter bc on ur.isbn = bc.isbn inner join user u on u.id = ur.userID1 inner join department dp on dp.id = u.departmentID
+        <where>
+            <if test="username!=null and username !=''"> u.username like concat('%',#{username},'%')</if>
+            <if test="id!=null and id !=''"> u.id like concat('%',#{id},'%')</if>
+            <if test="department!=null and department !=''"> dp.department like concat('%',#{department},'%')</if>
+        </where>
+    </select>
+
+    <select id="listAllType" parameterType="User" resultMap="typeResultMap">
+      select distinct type from user
+    </select>
+
+    <select id="listAllDp" parameterType="User" resultMap="dpResultMap">
+      select distinct dp.department,u.departmentID  from user u inner join department dp on u.departmentID = dp.id
+    </select>
+
+    <select id="listAllFromAdmin" parameterType="User" resultMap="bookResultMap">
+        select distinct * from userRece ur inner join bookcenter bc on ur.isbn = bc.isbn
+        inner join user u on u.id = ur.userID1 and u.departmentID = #{departmentID}
+        inner join classschedule cs on cs.userID = u.id group by ur.isbn,ur.userID1;
+    </select>
+
+    <select id="listAllFromSuperAdmin" parameterType="User" resultMap="bookResultMap">
+        select * from userRece ur inner join bookcenter bc on ur.isbn = bc.isbn inner join user u on u.id = ur.userID2 inner join department dp on dp.id = u.departmentID and ur.status1 = 1;
+    </select>
+
+    <insert id="insertForUser" parameterType="User">
+        insert into userRece(isbn,userID1,time1) values (#{book.isbn},#{util.userID1},#{util.time1})
+    </insert>
+
+    <select id="getDataCount"  resultType="Integer" parameterType="User">
+        select count(1) from userRece ur inner join bookcenter bc on ur.isbn = bc.isbn and ur.userID1 =#{util.userID1}
+    </select>
+
+    <select id="getDataCountBySuperAdmin"  resultType="Integer" parameterType="User">
+        select count(1) from userRece ur inner join bookcenter bc on ur.isbn = bc.isbn and ur.status1 = 1
+    </select>
+
+    <select id="getDataCountBySuperAdminSM"  resultType="Integer" parameterType="User">
+        select count(1) from userRece ur inner join bookcenter bc on ur.isbn = bc.isbn
+    </select>
+
+    <select id="getDataCountByAdmin"  resultType="Integer" parameterType="User">
+              select count(1) from userRece ur inner join bookcenter bc on ur.isbn = bc.isbn  inner join user u on u.id = ur.userID1 and u.departmentID = #{departmentID};
+    </select>
+
+    <select id="getDataCountForSM"  resultType="Integer" parameterType="User">
+       select count(1) from userRece ur inner join bookcenter bc on ur.isbn = bc.isbn  inner join user u on u.id = ur.userID1 inner join department dp on dp.id = u.departmentID
+       <where>
+           <if test="username!=null and username !=''"> u.username like concat('%',#{username},'%')</if>
+           <if test="id!=null and id !=''"> u.id like concat('%',#{id},'%')</if>
+           <if test="department!=null and department !=''"> dp.department like concat('%',#{department},'%')</if>
+       </where>
+    </select>
+
+    <select id="getUserByUserID" parameterType="String" resultMap="userResultMap">
+        select * from user u inner join department dp on dp.id = u.departmentID where u.id = #{id}
+    </select>
+
+    <update id="updateByAdmin" parameterType="User">
+   UPDATE userRece set
+        userID2= #{util.userID2} ,status1 = #{util.status1},time2 =#{util.time2}
+        where id = #{id}
+    </update>
+    <update id="updateByEditor" parameterType="User">
+
+    </update>
+    <update id="updateBySuperAdmin" parameterType="User">
+         UPDATE userRece set
+        userID3= #{util.userID3} ,status2 = #{util.status2},time3 =#{util.time3}
+        where id = #{id}
+    </update>
+
+    <update id="updateForSM" parameterType="User">
+         UPDATE userRece set
+        userID4= #{util.userID4} ,status3 = #{util.status3},time4 =#{util.time4}
+        where id = #{id}
+    </update>
+
+</mapper>

@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.bookctrlcenter.dao.ClassDao">
+
+    <resultMap id="classResultMap" type="ClassInfo">
+        <id property="classID" column="classID"></id>
+        <result property="department" column="department"></result>
+        <result property="stuCount" column="stuCount"></result>
+        <result property="price" column="price"></result>
+        <result property="bookMoney" column="bookMoney"></result>
+        <result property="money" column="money"></result>
+        <result property="mStatus" column="mStatus"></result>
+        <result property="realCount" column="realCount"></result>
+        <result property="settlementTime" column="settlementTime"></result>
+        <result property="issuingTime" column="issuingTime"></result>
+        <result property="totalPrice" column="totalPrice"></result>
+    </resultMap>
+
+    <resultMap id="bookResultMap" type="Book">
+        <result property="bookName" column="bookName"></result>
+        <result property="isbn" column="isbn"></result>
+        <result property="countStock" column="countStock"></result>
+        <result property="count" column="count"></result>
+        <result property="stuCount" column="stuCount"></result>
+        <result property="classID" column="classID"></result>
+    </resultMap>
+
+    <select id="listAll"  resultMap="classResultMap" parameterType="ClassInfo">
+        select * from class c left join user u on c.issuingUserID = u.id inner join department dp on dp.id = c.departmentID
+        <where>
+            <if test="classID!=null and classID!= ''">and classID like concat('%',#{classID},'%')</if>
+            <if test="departments!=null and departments!= ''">and departments like "%"#{departments}"%"</if>
+        </where>
+        limit #{start},#{size}
+    </select>
+
+    <select id="listAllBySMUserID"  resultMap="classResultMap" parameterType="ClassInfo">
+        select * from class c left join user u on c.settlementUserID = u.id inner join department dp on dp.id = c.departmentID
+        <where>
+            <if test="classID!=null and classID!= ''"> classID like concat('%',#{classID},'%')</if>
+            <if test="departments!=null and departments!= ''">and departments like "%"#{departments}"%"</if>
+        </where>
+        limit #{start},#{size}
+    </select>
+
+    <select id="getDataCount"  resultType="Integer" parameterType="ClassInfo">
+        select count(1) from class
+        <where>
+            <if test="classID!=null and classID!= ''">and classID like concat('%',#{classID},'%')</if>
+            <if test="departments!=null and departments!= ''">and departments like "%"#{departments}"%"</if>
+        </where>
+    </select>
+
+
+
+    <select id="searchBookForClass"  resultMap="bookResultMap" parameterType="ClassInfo">
+        select distinct ba.bookName,ba.isbn,bc.countStock,c.stuCount, cc.classID from bookauditlibrary ba inner join bookcenter bc on ba.isbn = bc.isbn
+        inner join classschedule cc on cc.classSchID = ba.classSchID
+        inner join class c on cc.classID = c.classID  where c.classID = #{classID};
+    </select>
+
+    <select id="getTotalPrice"  resultType="Integer" parameterType="Integer">
+       select distinct sum(ba.price) totalPrice  from bookauditlibrary ba inner join bookcenter bc on ba.isbn = bc.isbn
+        inner join classschedule cc on cc.classSchID = ba.classSchID
+        inner join class c on cc.classID = c.classID  where c.classID =#{classID}
+    </select>
+
+
+
+    <update id="update"  parameterType="ClassInfo" >
+        UPDATE class set
+            <if test="issuing!=null and issuing!= ''">issuing = #{issuing},issuingUserID = #{issuingUserID},realCount = #{realCount},totalPrice = #{totalPrice},price = #{price},issuingTime = #{issuingTime}</if>
+            <if test="settlement!=null and settlement!= ''">settlement = #{settlement},settlementUserID = #{settlementUserID},bmStatus=#{bmStatus},money = #{money},settlementTime = #{settlementTime}</if>
+        where classID = #{classID}
+    </update>
+
+    <update id="moneySubmit"  parameterType="ClassInfo" >
+        UPDATE class set mStatus = #{mStatus}
+        where classID = #{classID}
+    </update>
+
+</mapper>

@@ -1,0 +1,565 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.bookctrlcenter.dao.BookDao">
+
+    <resultMap id="bookResultMap" type="Book">
+        <id property="id" column="id"></id>
+        <result property="bookName" column="bookName"></result>
+        <result property="author" column="author"></result>
+        <result property="publisher" column="publisher"></result>
+        <result property="isbn" column="isbn"></result>
+        <result property="price" column="price"></result>
+        <result property="user.username" column="username"></result>
+        <result property="user.departmentID" column="departmentID"></result>
+        <result property="user.department" column="department"></result>
+        <result property="userID" column="userID"></result>
+        <result property="classSchedule.className" column="className"></result>
+        <result property="classSchedule.classSchID" column="classSchID"></result>
+        <result property="user.subject" column="subject"></result>
+        <result property="count" column="count"></result>
+        <result property="util.time1" column="time1"></result>
+        <result property="util.status1" column="status1"></result>
+        <result property="util.time2" column="time2"></result>
+        <result property="util.status2" column="status2"></result>
+        <result property="util.message1" column="message1"></result>
+        <result property="util.message2" column="message2"></result>
+        <result property="util.time3" column="time3"></result>
+        <result property="util.userID1" column="userID1"></result>
+        <result property="util.userID2" column="userID2"></result>
+        <result property="util.userID3" column="userID3"></result>
+        <result property="classInfo.level" column="level"></result>
+        <result property="suppliers.supplier" column="supplier"></result>
+        <result property="printerss.printers" column="printers"></result>
+    </resultMap>
+
+    <resultMap id="bookResultMap2" type="Book">
+        <id property="id" column="id"></id>
+        <result property="publisher" column="publisher"></result>
+        <result property="totalPrice" column="totalPrice"></result>
+    </resultMap>
+
+    <select id="listAll" resultMap="bookResultMap" parameterType="Book">
+        select *
+        from bookauditlibrary bal inner join user u on bal.userID2 = u.id inner join department dp on dp.id =
+        bal.departmentID where bal.status1 =1
+        <if test="bookName!=null and bookName!= ''">and bal.bookName like concat('%',#{bookName},'%')</if>
+        <if test="author!=null and author!= ''">and bal.author like "%"#{author}"%"</if>
+        <if test="publisher!=null and publisher!= ''">and bal.publisher like "%"#{publisher}"%"</if>
+        <if test="isbn!=null and isbn!= ''">and bal.isbn like "%"#{isbn}"%"</if>
+        <if test="user.username!=null and user.username!= ''">and u.username like "%"#{user.username}"%"</if>
+        <if test="user.subject!=null and user.subject!= ''">and u.subject like "%"#{user.subject}"%"</if>
+        limit #{start},#{size}
+    </select>
+
+    <select id="listAllByAdmin" resultMap="bookResultMap" parameterType="Book">
+        select * from bookauditlibrary bal left join user u on bal.userID1 = u.id where bal.departmentID =
+        #{user.departmentID}
+        <if test="bookName!=null and bookName!= ''">and bal.bookName like concat('%',#{bookName},'%')</if>
+        <if test="author!=null and author!= ''">and bal.author like "%"#{author}"%"</if>
+        <if test="publisher!=null and publisher!= ''">and bal.publisher like "%"#{publisher}"%"</if>
+        <if test="isbn!=null and isbn!= ''">and bal.isbn like "%"#{isbn}"%"</if>
+        <if test="user.username!=null and user.username!= ''">and u.username like "%"#{user.username}"%"</if>
+        <if test="user.subject!=null and user.subject!= ''">and u.subject like "%"#{user.subject}"%"</if>
+        limit #{start},#{size}
+    </select>
+
+    <select id="listAllByEditor" resultMap="bookResultMap" parameterType="Book">
+        select distinct
+        bal.isbn,bal.bookName,bal.author,bal.publisher,bal.price,u.username,bal.time3,cc.className,cc.classID from user
+        u
+        inner join classschedule cc on u.id = cc.userID left join class c on c.classID = cc.classID
+        inner join bookauditlibrary bal on bal.departmentID = c.departmentID and bal.classSchID = cc.classSchID
+        inner join bookcenter bc on bc.isbn = bal.isbn and cc.userID = #{user.id}
+        <if test="bookName!=null and bookName!= ''">and bal.bookName like concat('%',#{bookName},'%')</if>
+        <if test="author!=null and author!= ''">and bal.author like "%"#{author}"%"</if>
+        <if test="publisher!=null and publisher!= ''">and bal.publisher like "%"#{publisher}"%"</if>
+        <if test="isbn!=null and isbn!= ''">and bal.isbn like "%"#{isbn}"%"</if>
+        group by bal.isbn
+        limit #{start},#{size}
+    </select>
+
+    <select id="listAllSB" resultMap="bookResultMap" parameterType="Book">
+        select *
+        from schoolbookauditlibrary bal inner join user u on bal.userID2 = u.id inner join department dp on dp.id =
+        bal.departmentID inner join schoolbookcenter sbc on sbc.isbn = bal.isbn where bal.status1 =1
+        <if test="bookName!=null and bookName!= ''">and bal.bookName like concat('%',#{bookName},'%')</if>
+        <if test="author!=null and author!= ''">and bal.author like "%"#{author}"%"</if>
+        <if test="publisher!=null and publisher!= ''">and bal.publisher like "%"#{publisher}"%"</if>
+        <if test="isbn!=null and isbn!= ''">and bal.isbn like "%"#{isbn}"%"</if>
+        <if test="user.username!=null and user.username!= ''">and u.username like "%"#{user.username}"%"</if>
+        <if test="user.subject!=null and user.subject!= ''">and u.subject like "%"#{user.subject}"%"</if>
+        limit #{start},#{size}
+    </select>
+
+    <select id="listAllByAdminSB" resultMap="bookResultMap" parameterType="Book">
+        select * from schoolbookauditlibrary bal left join user u on bal.userID1 = u.id inner join schoolbookcenter sbc
+        on sbc.isbn = bal.isbn where bal.departmentID = #{user.departmentID}
+        <if test="bookName!=null and bookName!= ''">and bal.bookName like concat('%',#{bookName},'%')</if>
+        <if test="author!=null and author!= ''">and bal.author like "%"#{author}"%"</if>
+        <if test="publisher!=null and publisher!= ''">and bal.publisher like "%"#{publisher}"%"</if>
+        <if test="isbn!=null and isbn!= ''">and bal.isbn like "%"#{isbn}"%"</if>
+        <if test="user.username!=null and user.username!= ''">and u.username like "%"#{user.username}"%"</if>
+        limit #{start},#{size}
+    </select>
+    <select id="getDataCountByAdminSB" resultType="Integer" parameterType="Book">
+        select count(1) from schoolbookauditlibrary bal left join user u on bal.userID1 = u.id inner join
+        schoolbookcenter sbc on sbc.isbn = bal.isbn where bal.departmentID = #{user.departmentID}
+        <if test="user.username!=null and user.username!= ''">u.username = #{user.username}</if>
+        <if test="bookName!=null and bookName!= ''">and bookName like "%"#{bookName}"%"</if>
+        <if test="author!=null and author!= ''">and author like "%"#{author}"%"</if>
+        <if test="publisher!=null and publisher!= ''">and publisher like "%"#{publisher}"%"</if>
+        <if test="isbn!=null and isbn!= ''">and isbn like "%"#{isbn}"%"</if>
+    </select>
+
+    <select id="listAllByEditorSB" resultMap="bookResultMap" parameterType="Book">
+        select distinct
+        bal.isbn,bal.bookName,bal.author,bal.publisher,bal.price,u.username,bal.time3,cc.className,cc.classID from user
+        u
+        inner join classschedule cc on u.id = cc.userID left join class c on c.classID = cc.classID
+        inner join schoolbookauditlibrary bal on bal.departmentID = c.departmentID and bal.classSchID = cc.classSchID
+        inner join schoolbookcenter bc on bc.isbn = bal.isbn and cc.userID = #{user.id}
+        <if test="bookName!=null and bookName!= ''">and bal.bookName like concat('%',#{bookName},'%')</if>
+        <if test="author!=null and author!= ''">and bal.author like "%"#{author}"%"</if>
+        <if test="publisher!=null and publisher!= ''">and bal.publisher like "%"#{publisher}"%"</if>
+        <if test="isbn!=null and isbn!= ''">and bal.isbn like "%"#{isbn}"%"</if>
+        group by bal.isbn
+        limit #{start},#{size}
+    </select>
+
+    <select id="listAllByUserID1SB" resultMap="bookResultMap" parameterType="Book">
+        select * from schoolbookauditlibrary bal inner join user u on bal.userID1 = u.id and bal.userID1 =#{user.id}
+        inner join department dp on dp.id = u.departmentID
+        inner join classschedule cc on u.id = cc.userID
+        inner join schoolbookcenter sbc on sbc.isbn = bal.isbn
+        inner join class c on c.classID = cc.classID and bal.classSchID = cc.classSchID
+        <where>
+            <if test="user.username!=null and user.username!= ''">u.username = #{user.username}</if>
+            <if test="bookName!=null and bookName!= ''">and bookName like "%"#{bookName}"%"</if>
+            <if test="author!=null and author!= ''">and author like "%"#{author}"%"</if>
+            <if test="publisher!=null and publisher!= ''">and publisher like "%"#{publisher}"%"</if>
+            <if test="isbn!=null and isbn!= ''">and isbn like "%"#{isbn}"%"</if>
+        </where>
+        limit #{start},#{size}
+    </select>
+
+    <select id="listAllFromBookCenter" resultMap="bookResultMap" parameterType="Book">
+        select * from bookcenter
+        <where>
+            <if test="bookName!=null and bookName!= ''">and bookName like "%"#{bookName}"%"</if>
+            <if test="author!=null and author!= ''">and author like "%"#{author}"%"</if>
+            <if test="publisher!=null and publisher!= ''">and publisher like "%"#{publisher}"%"</if>
+            <if test="isbn!=null and isbn!= ''">and isbn like "%"#{isbn}"%"</if>
+        </where>
+        limit #{start},#{size}
+    </select>
+
+    <select id="listAllFromSchoolBookCenter" resultMap="bookResultMap" parameterType="Book">
+        select * from schoolbookcenter
+        <where>
+            <if test="bookName!=null and bookName!= ''">and bookName like "%"#{bookName}"%"</if>
+            <if test="author!=null and author!= ''">and author like "%"#{author}"%"</if>
+            <if test="publisher!=null and publisher!= ''">and publisher like "%"#{publisher}"%"</if>
+            <if test="isbn!=null and isbn!= ''">and isbn like "%"#{isbn}"%"</if>
+        </where>
+        limit #{start},#{size}
+    </select>
+
+
+    <select id="listAllFromDemandLibrary" resultMap="bookResultMap" parameterType="Book">
+        select
+        bdl.isbn,bdl.bookName,bdl.author,bdl.publisher,bdl.price,u.username,bdl.time,bdl.warehousing,bdl.count,sl.supplier
+        from bookdemandlibrary bdl left join user u on bdl.userID = u.id left join supplier sl on bdl.supplierID = sl.id
+        <where>
+            <if test="bookName!=null and bookName!= ''">and bookName like "%"#{bookName}"%"</if>
+            <if test="author!=null and author!= ''">and author like "%"#{author}"%"</if>
+            <if test="publisher!=null and publisher!= ''">and publisher like "%"#{publisher}"%"</if>
+            <if test="isbn!=null and isbn!= ''">and isbn like "%"#{isbn}"%"</if>
+        </where>
+        limit #{start},#{size}
+    </select>
+
+
+    <select id="listAllFromSBDemandLibrary" resultMap="bookResultMap" parameterType="Book">
+        select * from schoolbookdemandlibrary bdl left join user u on bdl.userID = u.id left join printers ps on
+        bdl.printersID = ps.id
+        <where>
+            <if test="bookName!=null and bookName!= ''">and bookName like "%"#{bookName}"%"</if>
+            <if test="author!=null and author!= ''">and author like "%"#{author}"%"</if>
+            <if test="publisher!=null and publisher!= ''">and publisher like "%"#{publisher}"%"</if>
+            <if test="isbn!=null and isbn!= ''">and isbn like "%"#{isbn}"%"</if>
+        </where>
+        limit #{start},#{size}
+    </select>
+
+
+    <select id="listAllByUserID1" resultMap="bookResultMap" parameterType="Book">
+        select * from bookauditlibrary bal inner join user u on bal.userID1 = u.id and bal.userID1 =#{user.id}
+        inner join department dp on dp.id = u.departmentID
+        inner join classschedule cc on u.id = cc.userID inner join class c on c.classID = cc.classID and bal.classSchID
+        = cc.classSchID
+        <where>
+            <if test="user.username!=null and user.username!= ''">u.username = #{user.username}</if>
+            <if test="bookName!=null and bookName!= ''">and bookName like "%"#{bookName}"%"</if>
+            <if test="author!=null and author!= ''">and author like "%"#{author}"%"</if>
+            <if test="publisher!=null and publisher!= ''">and publisher like "%"#{publisher}"%"</if>
+            <if test="isbn!=null and isbn!= ''">and isbn like "%"#{isbn}"%"</if>
+        </where>
+        limit #{start},#{size}
+    </select>
+
+    <select id="getDataCount" resultType="Integer" parameterType="Book">
+        select count(1) from bookauditlibrary bal inner join user u on bal.userID2 = u.id where bal.status1 = 1
+        <if test="user.username!=null and user.username!= ''">and u.username = #{user.username}</if>
+        <if test="bookName!=null and bookName!= ''">and bookName like "%"#{bookName}"%"</if>
+        <if test="author!=null and author!= ''">and author like "%"#{author}"%"</if>
+        <if test="publisher!=null and publisher!= ''">and publisher like "%"#{publisher}"%"</if>
+        <if test="isbn!=null and isbn!= ''">and isbn like "%"#{isbn}"%"</if>
+    </select>
+
+    <select id="getDataCountByAdmin" resultType="Integer" parameterType="Book">
+        select count(1) from bookauditlibrary bal left join user u on bal.userID2 = u.id where bal.departmentID =
+        #{user.departmentID}
+        <if test="user.username!=null and user.username!= ''">u.username = #{user.username}</if>
+        <if test="bookName!=null and bookName!= ''">and bookName like "%"#{bookName}"%"</if>
+        <if test="author!=null and author!= ''">and author like "%"#{author}"%"</if>
+        <if test="publisher!=null and publisher!= ''">and publisher like "%"#{publisher}"%"</if>
+        <if test="isbn!=null and isbn!= ''">and isbn like "%"#{isbn}"%"</if>
+    </select>
+
+
+    <select id="getDataCountSB" resultType="Integer" parameterType="Book">
+        select count(1) from schoolbookauditlibrary bal inner join user u on bal.userID2 = u.id where bal.status1 = 1
+        <if test="user.username!=null and user.username!= ''">and u.username = #{user.username}</if>
+        <if test="bookName!=null and bookName!= ''">and bookName like "%"#{bookName}"%"</if>
+        <if test="author!=null and author!= ''">and author like "%"#{author}"%"</if>
+        <if test="publisher!=null and publisher!= ''">and publisher like "%"#{publisher}"%"</if>
+        <if test="isbn!=null and isbn!= ''">and isbn like "%"#{isbn}"%"</if>
+    </select>
+
+
+    <select id="getDataCountByEditorSB" resultType="Integer" parameterType="Book">
+        select count(distinct bal.isbn)from user u
+        inner join classschedule cc on u.id = cc.userID left join class c on c.classID = cc.classID
+        inner join schoolbookauditlibrary bal on bal.departmentID = c.departmentID and bal.classSchID = cc.classSchID
+        inner join schoolbookcenter bc on bc.isbn = bal.isbn and cc.userID = #{user.id}
+        <where>
+            <if test="bookName!=null and bookName!= ''">and bal.bookName like concat('%',#{bookName},'%')</if>
+            <if test="author!=null and author!= ''">and bal.author like "%"#{author}"%"</if>
+            <if test="publisher!=null and publisher!= ''">and bal.publisher like "%"#{publisher}"%"</if>
+            <if test="isbn!=null and isbn!= ''">and bal.isbn like "%"#{isbn}"%"</if>
+        </where>
+    </select>
+
+    <select id="getDataCountByEditor" resultType="Integer" parameterType="Book">
+        select count(distinct bal.isbn)from user u
+        inner join classschedule cc on u.id = cc.userID left join class c on c.classID = cc.classID
+        inner join bookauditlibrary bal on bal.departmentID = c.departmentID and bal.classSchID = cc.classSchID
+        inner join bookcenter bc on bc.isbn = bal.isbn and cc.userID = #{user.id}
+        <where>
+            <if test="bookName!=null and bookName!= ''">and bal.bookName like concat('%',#{bookName},'%')</if>
+            <if test="author!=null and author!= ''">and bal.author like "%"#{author}"%"</if>
+            <if test="publisher!=null and publisher!= ''">and bal.publisher like "%"#{publisher}"%"</if>
+            <if test="isbn!=null and isbn!= ''">and bal.isbn like "%"#{isbn}"%"</if>
+        </where>
+    </select>
+
+    <select id="getDataCountFromBookCenter" resultType="Integer" parameterType="Book">
+        select count(1) from bookcenter
+        <where>
+            <if test="bookName!=null and bookName!= ''">and bookName like "%"#{bookName}"%"</if>
+            <if test="author!=null and author!= ''">and author like "%"#{author}"%"</if>
+            <if test="publisher!=null and publisher!= ''">and publisher like "%"#{publisher}"%"</if>
+            <if test="isbn!=null and isbn!= ''">and isbn like "%"#{isbn}"%"</if>
+        </where>
+    </select>
+
+
+    <select id="getDataCountFromSchoolBookCenter" resultType="Integer" parameterType="Book">
+        select count(1) from schoolbookcenter
+        <where>
+            <if test="bookName!=null and bookName!= ''">and bookName like "%"#{bookName}"%"</if>
+            <if test="author!=null and author!= ''">and author like "%"#{author}"%"</if>
+            <if test="publisher!=null and publisher!= ''">and publisher like "%"#{publisher}"%"</if>
+            <if test="isbn!=null and isbn!= ''">and isbn like "%"#{isbn}"%"</if>
+        </where>
+    </select>
+
+    <select id="getDataFromBookCenter" resultType="Integer" parameterType="String">
+        select countStock from bookcenter where isbn = #{isbn}
+    </select>
+
+    <select id="getDataFromDM" resultType="Integer" parameterType="String">
+        select count from bookdemandlibrary where isbn = #{isbn}
+    </select>
+
+    <select id="getDataFromSBDM" resultType="Integer" parameterType="String">
+        select count from schoolbookdemandlibrary where isbn = #{isbn}
+    </select>
+
+    <select id="getDataFromSchoolBookCenter" resultType="Integer" parameterType="String">
+        select countStock from schoolbookcenter where isbn = #{isbn}
+    </select>
+
+    <select id="getDataCountFromDL" resultType="Integer" parameterType="Book">
+        select count(1) from bookdemandlibrary
+        <where>
+            <if test="bookName!=null and bookName!= ''">and bookName like "%"#{bookName}"%"</if>
+            <if test="author!=null and author!= ''">and author like "%"#{author}"%"</if>
+            <if test="publisher!=null and publisher!= ''">and publisher like "%"#{publisher}"%"</if>
+            <if test="isbn!=null and isbn!= ''">and isbn like "%"#{isbn}"%"</if>
+        </where>
+    </select>
+
+    <select id="getDataCountFromSBDL" resultType="Integer" parameterType="Book">
+        select count(1) from schoolbookdemandlibrary
+        <where>
+            <if test="bookName!=null and bookName!= ''">and bookName like "%"#{bookName}"%"</if>
+            <if test="author!=null and author!= ''">and author like "%"#{author}"%"</if>
+            <if test="publisher!=null and publisher!= ''">and publisher like "%"#{publisher}"%"</if>
+            <if test="isbn!=null and isbn!= ''">and isbn like "%"#{isbn}"%"</if>
+        </where>
+    </select>
+
+
+    <select id="getStatusForAdmin" resultType="Integer" parameterType="Book">
+        select status1 from  bookauditlibrary where isbn = #{isbn} and userID1 = #{util.userID1}
+    </select>
+
+    <insert id="insert" parameterType="Book">
+        insert into
+        bookauditlibrary(bookName,author,publisher,isbn,price,count,status1,userID1,time1,classSchID,departmentID)
+        values (#{bookName},#{author},#{publisher} ,#{isbn}
+        ,#{price},#{count},#{status},#{user.id},#{time},#{classSchedule.classSchID},#{user.departmentID})
+    </insert>
+
+    <insert id="insertSB" parameterType="Book">
+        insert into schoolbookauditlibrary(isbn,count,status1,userID1,time1,classSchID,departmentID) values (#{isbn}
+        ,#{count},#{status},#{user.id},#{time},#{classSchedule.classSchID},#{user.departmentID})
+    </insert>
+
+    <insert id="insertSBForAdmin" parameterType="Book">
+        insert into
+        schoolbookauditlibrary(isbn,count,status1,userID1,time1,classSchID,departmentID,status2,userID2,time2) values
+        (#{isbn}
+        ,#{count},#{status},#{user.id},#{time},#{classSchedule.classSchID},#{user.departmentID},#{status},#{user.id},#{time})
+    </insert>
+    <insert id="insertSBForSuperAdmin" parameterType="Book">
+        insert into
+        schoolbookauditlibrary(isbn,count,status1,userID1,time1,classSchID,departmentID,status2,userID2,time2,userID3,time3)
+        values (#{isbn}
+        ,#{count},1,#{user.id},#{time},#{classSchedule.classSchID},#{user.departmentID},1,#{user.id},#{time},#{user.id},#{time})
+    </insert>
+    <update id="insertToSBDL">
+        insert into
+        schoolbookdemandlibrary(bookName,author,publisher,isbn,price,count,warehousing)values(#{bookName},#{author},#{publisher}
+        ,#{isbn} ,#{price},#{count},#{warehousing}) on duplicate key update count = count + #{count};
+    </update>
+
+    <update id="insertToDL">
+        insert into
+        bookdemandlibrary(bookName,author,publisher,isbn,price,count,warehousing)values(#{bookName},#{author},#{publisher}
+        ,#{isbn} ,#{price},#{count},#{warehousing}) on duplicate key update count = count + #{count};
+    </update>
+
+    <update id="insertToBC">
+        insert into bookcenter(bookName,author,publisher,isbn,price,countStock)values(#{bookName},#{author},#{publisher}
+        ,#{isbn} ,#{price},#{count}) on duplicate key update countStock = countStock + #{count};
+    </update>
+    <update id="insertToSBBC">
+        insert into
+        schoolbookcenter(bookName,author,publisher,isbn,price,countStock)values(#{bookName},#{author},#{publisher}
+        ,#{isbn} ,#{price},#{count}) on duplicate key update countStock = countStock + #{count};
+    </update>
+
+    <update id="updateBC">
+        update bookcenter set countStock = countStock - #{count} where isbn = #{isbn}
+    </update>
+    <update id="updateBCForReceBook">
+        update bookcenter set countStock = countStock - #{count} where isbn = #{isbn}
+    </update>
+
+    <delete id="delete" parameterType="Book">
+        delete from bookauditlibrary where isbn = #{isbn}
+    </delete>
+
+    <delete id="deleteSB" parameterType="Book">
+        delete from schoolbookauditlibrary where isbn = #{isbn}
+    </delete>
+    <update id="update" parameterType="Book">
+        UPDATE bookauditlibrary set userID3= #{util.userID3},message2=#{util.message2},status1 =#{util.status1},status2 =
+        #{util.status2},time3 =#{util.time3}
+        where id = #{id}
+    </update>
+
+    <update id="updateSB" parameterType="Book">
+        UPDATE schoolbookauditlibrary set userID3= #{util.userID3},message2=#{util.message2} ,status2 =
+        #{util.status2},time3 =#{util.time3}
+        where id = #{id}
+    </update>
+
+    <update id="updateForAdmin" parameterType="Book">
+        UPDATE bookauditlibrary set
+        userID2= #{util.userID2} ,status1 = #{util.status1},status2=#{util.status2},message1=#{util.message1},time2
+        =#{util.time2},count=#{count}
+        where isbn = #{isbn} and userID1 = #{util.userID1} and status1=0
+    </update>
+
+    <update id="updateForAdminSB" parameterType="Book">
+        UPDATE schoolbookauditlibrary set
+        userID2= #{util.userID2} ,status1 = #{util.status1},message1=#{util.message1},time2 =#{util.time2}
+        where id = #{id}
+    </update>
+
+    <update id="updateForEditor" parameterType="Book">
+        UPDATE bookauditlibrary set bookName = #{bookName},author = #{author},publisher = #{publisher},status1=
+        0,status2= 0,isbn = #{isbn},price = #{price}
+        ,count = #{count},classSchID = #{classSchedule.classSchID}
+        where id = #{id}
+    </update>
+
+    <update id="updateForEditorSB" parameterType="Book">
+        UPDATE schoolbookauditlibrary set
+        classSchID = #{classSchedule.classSchID},status1= 0,status2= 0,
+        where id = #{id}
+    </update>
+
+    <update id="updateDL" parameterType="Book">
+        UPDATE bookdemandlibrary set count = count - #{recount}
+        where isbn = #{isbn}
+    </update>
+    <update id="updateSBDL" parameterType="Book">
+        UPDATE schoolbookdemandlibrary set count = count - #{recount}
+        where isbn = #{isbn}
+    </update>
+
+    <update id="updateDLForWarehousing" parameterType="Book">
+        UPDATE bookdemandlibrary set warehousing = #{warehousing},userID = #{userID},time =
+        #{time},supplierID=#{suppliers.id}
+        where isbn = #{isbn}
+    </update>
+
+    <update id="updateSBDLForWarehousing" parameterType="Book">
+        UPDATE schoolbookdemandlibrary set count = #{count} ,warehousing = #{warehousing},userID = #{userID},time =
+        #{time},printersID=#{printerss.id}
+        where isbn = #{isbn}
+    </update>
+
+    <!--    <select id="getUserByUsername" parameterType="User" resultMap="userResultMap">-->
+    <!--        select * from user where user_username = #{username}-->
+    <!--    </select>-->
+    <select id="IfExit" parameterType="Book" resultType="Integer">
+        select count(id) from bookauditlibrary where isbn = #{isbn}and userID1 = #{userID}
+    </select>
+
+    <select id="IfExitRecc" parameterType="Book" resultType="Integer">
+        select count(id) from userrece where isbn = #{isbn}and userID1 = #{userID}
+    </select>
+
+    <select id="IfExitSB" parameterType="Book" resultType="Integer">
+        select count(id) from schoolbookauditlibrary where isbn = #{isbn}and userID1 = #{userID}
+    </select>
+
+    <select id="IfExitSBBC" parameterType="Book" resultType="Integer">
+        select count(isbn) from schoolbookcenter where isbn = #{isbn}
+    </select>
+    <select id="select" parameterType="Integer" resultType="Book">
+        select * from bookauditlibrary where id = #{id}
+    </select>
+
+    <select id="getStuCount" parameterType="Book" resultType="Integer">
+        select distinct sum(distinct(c.stuCount)) from bookauditlibrary bal
+        inner join classschedule cs on bal.classSchID = cs.classSchID
+        inner join class c on c.classID = cs.classID and bal.departmentID = c.departmentID and bal.departmentID =
+        #{departmentID}
+        group by c.departmentID
+    </select>
+
+
+    <select id="getPriceFromDMForSM" parameterType="Book" resultType="Book">
+        select publisher,sum(price * count) totalPrice from bookdemandlibrary group by publisher;
+    </select>
+    <select id="getPriceFromSBDMForSM" parameterType="Book" resultType="Book">
+        select publisher,sum(price * count) totalPrice from schoolbookdemandlibrary group by publisher;
+    </select>
+
+    <update id="updateBCinfo" parameterType="Book">
+        UPDATE bookcenter set bookName = #{bookName},author = #{author},publisher = #{publisher},isbn = #{isbn},price =
+        #{price}
+        where isbn = #{isbn}
+    </update>
+
+    <update id="updateSBBCinfo" parameterType="Book">
+        UPDATE schoolbookcenter set bookName = #{bookName},author = #{author},publisher = #{publisher},isbn =
+        #{isbn},price = #{price}
+        where isbn = #{isbn}
+    </update>
+
+    <delete id="deleteBC" parameterType="Book">
+        delete from bookcenter where isbn = #{isbn}
+    </delete>
+
+    <delete id="deleteSBBC" parameterType="Book">
+        delete from schoolbookcenter where isbn = #{isbn}
+    </delete>
+
+    <insert id="insertToUS" parameterType="Book">
+        insert into unsubscribe(isbn,usType,userID,time,supplierID,count) values
+        (#{isbn},#{usType},#{user.id},#{time},#{suppliers.id},#{count})
+    </insert>
+
+    <insert id="insertToUSSB" parameterType="Book">
+        insert into schoolunsubscribe(isbn,usType,userID,time,printersID,count) values
+        (#{isbn},#{usType},#{user.id},#{time},#{printerss.id},#{count})
+    </insert>
+
+
+    <select id="listAllFromUS" resultMap="bookResultMap" parameterType="Book">
+        select bc.isbn,bc.bookName,bc.author,bc.publisher,bc.price,u.username,us.time,us.count,sup.supplier from
+        unsubscribe us inner join bookcenter bc on us.isbn=bc.isbn inner join user u on u.id = us.userID inner join
+        supplier sup on sup.id = us.supplierID
+        <where>
+            <if test="bookName!=null and bookName!= ''">and bookName like "%"#{bookName}"%"</if>
+            <if test="author!=null and author!= ''">and author like "%"#{author}"%"</if>
+            <if test="publisher!=null and publisher!= ''">and publisher like "%"#{publisher}"%"</if>
+            <if test="isbn!=null and isbn!= ''">and isbn like "%"#{isbn}"%"</if>
+        </where>
+        limit #{start},#{size}
+    </select>
+
+    <select id="listAllFromUSSB" resultMap="bookResultMap" parameterType="Book">
+        select bc.isbn,bc.bookName,bc.author,bc.publisher,bc.price,u.username,su.time,su.count,p.printers from
+        schoolunsubscribe su inner join bookcenter bc on su.isbn=bc.isbn inner join user u on u.id = su.userID inner
+        join printers p on p.id = su.printersID
+        <where>
+            <if test="bookName!=null and bookName!= ''">and bc.bookName like "%"#{bookName}"%"</if>
+            <if test="author!=null and author!= ''">and bc.author like "%"#{author}"%"</if>
+            <if test="publisher!=null and publisher!= ''">and bc.publisher like "%"#{publisher}"%"</if>
+            <if test="isbn!=null and isbn!= ''">and bc.isbn like "%"#{isbn}"%"</if>
+        </where>
+        limit #{start},#{size}
+    </select>
+
+    <select id="getDataCountFromUS" resultType="Integer" parameterType="Book">
+        select count(us.isbn) from unsubscribe us inner join bookcenter bc on us.isbn=bc.isbn
+        <where>
+            <if test="bookName!=null and bookName!= ''">and bc.bookName like "%"#{bookName}"%"</if>
+            <if test="author!=null and author!= ''">and bc.author like "%"#{author}"%"</if>
+            <if test="publisher!=null and publisher!= ''">and bc.publisher like "%"#{publisher}"%"</if>
+            <if test="isbn!=null and isbn!= ''">and bc.isbn like "%"#{isbn}"%"</if>
+        </where>
+    </select>
+
+    <select id="getDataCountFromUSSB" resultType="Integer" parameterType="Book">
+        select count(su.isbn) from schoolunsubscribe su inner join bookcenter bc on su.isbn=bc.isbn
+        <where>
+            <if test="bookName!=null and bookName!= ''">and bc.bookName like "%"#{bookName}"%"</if>
+            <if test="author!=null and author!= ''">and bc.author like "%"#{author}"%"</if>
+            <if test="publisher!=null and publisher!= ''">and bc.publisher like "%"#{publisher}"%"</if>
+            <if test="isbn!=null and isbn!= ''">and bc.isbn like "%"#{isbn}"%"</if>
+        </where>
+    </select>
+
+</mapper>

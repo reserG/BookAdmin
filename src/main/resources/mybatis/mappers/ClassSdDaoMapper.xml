@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.bookctrlcenter.dao.ClassSdDao">
+
+    <resultMap id="classSdResultMap" type="ClassSchedule">
+        <id property="id" column="id"></id>
+        <result property="classSchID" column="classSchID"></result>
+        <result property="className" column="className"></result>
+        <result property="classID" column="classID"></result>
+    </resultMap>
+
+    <!--    <update id="updateUserBalance" parameterType="User" >-->
+    <!--        UPDATE user SET user_balance = user_balance - #{price} WHERE user_username = #{username}-->
+    <!--    </update>-->
+    <!--resultType="com.bookctrlcenter.entity.User"-->
+
+    <select id="listAll"  resultMap="classSdResultMap" parameterType="ClassSchedule">
+        select * from classschedule where userID = #{userID}
+    </select>
+
+
+<!--    <select id="listAllCSByID" parameterType="User" resultMap="userResultMap">-->
+<!--        select u.username,cc.className,cc.classSchID,cc.id from user u inner join classschedule cc on u.id = cc.userID where cc.userID = #{id};-->
+<!--    </select>-->
+    <!--    <insert id="insertUser" parameterType="User">-->
+    <!--        insert into user(user_username,user_gender,user_password,user_email,user_phone,user_address) values (#{username},#{gender},#{password} ,#{email},#{phone},#{address})-->
+    <!--    </insert>-->
+
+    <!--    <update id="updateUserContactInformation" parameterType="User">-->
+    <!--        UPDATE user set user_username = #{username},user_email = #{email},user_phone = #{phone},user_address = #{address} where id = #{id}-->
+    <!--    </update>-->
+
+    <!--    <select id="getUserByUsername" parameterType="User" resultMap="userResultMap">-->
+    <!--        select * from user where user_username = #{username}-->
+    <!--    </select>-->
+
+</mapper>
